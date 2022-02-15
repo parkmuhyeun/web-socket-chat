@@ -1,91 +1,72 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Custom messanger</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.0/handlebars.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js"></script>
-    <!--    libs for stomp and sockjs-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <!--    end libs for stomp and sockjs-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet"
-          type="text/css">
-    <link href="css/style.css" rel="stylesheet">
+    <title>Chat</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
 </head>
 <body>
-<div class="container clearfix">
-    <div class="people-list" id="people-list">
-        <div class="search">
-            <input id="userName" placeholder="search" type="text"/>
-            <button onclick="registration()">Enter the chat</button>
-            <button onclick="fetchAll()">Refresh</button>
-        </div>
-        <ul class="list" id="usersList">
 
-
-        </ul>
+<div class="col-md-6 offset-md-3 text-center">
+    <div>
+        <h1>채팅방 리스트</h1>
+    </div>
+    <div class="input-group mb-3">
+        <input id ="room_input" type="text" class="form-control" placeholder="Type a Room name.."  aria-describedby="room_btn">
+        <button class="btn btn-outline-secondary" type="button" id="room_btn">생성</button>
     </div>
 
-    <div class="chat">
-        <div class="chat-header clearfix">
-            <img alt="avatar" height="55px"
-                 src="https://rtfm.co.ua/wp-content/plugins/all-in-one-seo-pack/images/default-user-image.png"
-                 width="55px"/>
 
-            <div class="chat-about">
-                <div class="chat-with" id="selectedUserId"></div>
-                <div class="chat-num-messages"></div>
-            </div>
-            <i class="fa fa-star"></i>
-        </div> <!-- end chat-header -->
+    <!-- 채팅방 리스트 -->
+    <div id = "room_list">
 
-        <div class="chat-history">
-            <ul>
-
-            </ul>
-
-        </div> <!-- end chat-history -->
-
-        <div class="chat-message clearfix">
-            <textarea id="message-to-send" name="message-to-send" placeholder="Type your message" rows="3"></textarea>
-
-            <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;
-            <i class="fa fa-file-image-o"></i>
-
-            <button id="sendBtn">Send</button>
-
-        </div> <!-- end chat-message -->
-
-    </div> <!-- end chat -->
-
-</div> <!-- end container -->
-
-<script id="message-template" type="text/x-handlebars-template">
-    <li class="clearfix">
-        <div class="message-data align-right">
-            <span class="message-data-time">{{time}}, Today</span> &nbsp; &nbsp;
-            <span class="message-data-name">You</span> <i class="fa fa-circle me"></i>
-        </div>
-        <div class="message other-message float-right">
-            {{messageOutput}}
-        </div>
-    </li>
-</script>
-
-<script id="message-response-template" type="text/x-handlebars-template">
-    <li>
-        <div class="message-data">
-            <span class="message-data-name"><i class="fa fa-circle online"></i> {{userName}}</span>
-            <span class="message-data-time">{{time}}, Today</span>
-        </div>
-        <div class="message my-message">
-            {{response}}
-        </div>
-    </li>
-</script>
-
+    </div>
+</div>
 <script src="js/custom.js"></script>
 <script src="js/chat.js"></script>
 </body>
+<script type="application/javascript">
+    window.onload = async function () {
+        response = await fetch("http://localhost:8080/rooms");
+        const rooms = await response.json();
+        console.log(rooms);
+
+        let roomsTemplateHTML = "";
+        for (let i = 0; i < rooms.length; i++) {
+            let name = rooms[i].name.replaceAll("\"", "")
+            roomsTemplateHTML = roomsTemplateHTML + '<div><a href="#" onclick="EnterRoom(\'' + rooms[i].roomId + '\', \'' + name + '\')"> '+ name +' </a></div>';
+        }
+
+        list = document.getElementById("room_list");
+        list.innerHTML = roomsTemplateHTML;
+    };
+
+
+    document.getElementById("room_btn").addEventListener('click', function () {
+        let roomname = document.getElementById("room_input");
+        let name = roomname.value
+        console.log(roomname.value)
+        fetch("http://localhost:8080/room",{
+            method: "post",
+            body: JSON.stringify(name),
+            headers: {
+                "Content-Type":"application/json; charset=utf-8"
+            }
+        });
+        roomname.value = "";
+    });
+
+    function EnterRoom(roomId, roomName) {
+        var sender = prompt('대화명을 입력해 주세요.');
+        if (sender == "") {
+            alert("대화명을 입력해 주세요.");
+        } else {
+            localStorage.setItem('sender', sender);
+            localStorage.setItem('roomId', roomId);
+            localStorage.setItem('roomName', roomName);
+            location.href= "room";
+        }
+    }
+</script>
 </html>

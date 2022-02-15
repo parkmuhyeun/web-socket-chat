@@ -2,8 +2,17 @@ package com.muto.websocketproject.model;
 
 public class MessageModel {
 
+    private String roomId;
     private String message;
-    private String fromLogin;
+    private String sender;
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
 
     public String getMessage() {
         return message;
@@ -13,19 +22,20 @@ public class MessageModel {
         this.message = message;
     }
 
-    public String getFromLogin() {
-        return fromLogin;
+    public String getSender() {
+        return sender;
     }
 
-    public void setFromLogin(String fromLogin) {
-        this.fromLogin = fromLogin;
+    public void setSender(String sender) {
+        this.sender = sender;
     }
 
     @Override
     public String toString() {
         return "MessageModel{" +
-                "message='" + message + '\'' +
-                ", fromLogin='" + fromLogin + '\'' +
+                "roomId='" + roomId + '\'' +
+                ", message='" + message + '\'' +
+                ", fromLogin='" + sender + '\'' +
                 '}';
     }
 }
